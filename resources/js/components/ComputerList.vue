@@ -1,254 +1,102 @@
 <template>
     <div>
-        <div
-            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
-        >
-            <div class="relative w-full sm:w-64">
-                <div
-                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-                >
-                    <svg
-                        class="h-5 w-5 text-gray-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                </div>
-                <input
+        <v-row class="mb-4" align="center">
+            <v-col cols="12" sm="6" md="4">
+                <v-text-field
                     v-model="searchTerm"
-                    type="text"
-                    placeholder="Search computers..."
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-            </div>
-            <button
-                @click="showAddForm = true"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-                <svg
-                    class="-ml-1 mr-2 h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    label="Search computers..."
+                    prepend-inner-icon="mdi-magnify"
+                    variant="outlined"
+                    hide-details
+                ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="8" class="text-sm-right">
+                <v-btn
+                    color="primary"
+                    @click="showAddForm = true"
+                    prepend-icon="mdi-plus"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    Add Computer
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <!-- Add Computer Dialog -->
+        <v-dialog v-model="showAddForm" max-width="800">
+            <v-card>
+                <v-card-title class="headline">Add New Computer</v-card-title>
+                <v-card-text>
+                    <ComputerForm
+                        @submit="addComputer"
+                        @cancel="showAddForm = false"
                     />
-                </svg>
-                Add Computer
-            </button>
-        </div>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
 
-        <!-- Add Computer Modal -->
-        <Modal :show="showAddForm" @close="showAddForm = false">
-            <template #title>Add New Computer</template>
-            <template #content>
-                <ComputerForm
-                    @submit="addComputer"
-                    @cancel="showAddForm = false"
-                />
-            </template>
-        </Modal>
-
-        <!-- Edit Computer Modal -->
-        <Modal :show="!!editingComputer" @close="editingComputer = null">
-            <template #title>Edit Computer</template>
-            <template #content>
-                <ComputerForm
-                    v-if="editingComputer"
-                    :computer="editingComputer"
-                    @submit="updateComputer"
-                    @cancel="editingComputer = null"
-                />
-            </template>
-        </Modal>
+        <!-- Edit Computer Dialog -->
+        <v-dialog v-model="editingComputer" max-width="800">
+            <v-card v-if="editingComputer">
+                <v-card-title class="headline">Edit Computer</v-card-title>
+                <v-card-text>
+                    <ComputerForm
+                        :computer="editingComputer"
+                        @submit="updateComputer"
+                        @cancel="editingComputer = null"
+                    />
+                </v-card-text>
+            </v-card>
+        </v-dialog>
 
         <!-- Computer Table -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div v-if="loading" class="p-6 text-center">
-                <Spinner className="h-8 w-8 text-blue-500 mx-auto" />
-            </div>
-            <div
-                v-else-if="filteredComputers.length === 0"
-                class="p-6 text-center text-gray-500"
-            >
-                No computers found
-            </div>
-            <table v-else class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Name
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Serial
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Manufacturer
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Model
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            RAM
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Storage
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr
-                        v-for="computer in filteredComputers"
-                        :key="computer.id"
-                        class="hover:bg-gray-50"
-                    >
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div
-                                    class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center"
-                                >
-                                    <svg
-                                        class="h-6 w-6 text-blue-600"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                        />
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <div
-                                        class="text-sm font-medium text-gray-900"
-                                    >
-                                        {{ computer.name }}
-                                    </div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ computer.operating_system }}
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono"
-                        >
-                            {{ computer.serial_number }}
-                        </td>
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                        >
-                            {{ computer.manufacturer }}
-                        </td>
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                        >
-                            {{ computer.model }}
-                        </td>
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                        >
-                            {{ computer.ram }} GB
-                        </td>
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                        >
-                            {{ computer.storage }} GB
-                        </td>
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                        >
-                            <button
-                                @click="editComputer(computer)"
-                                class="text-blue-600 hover:text-blue-900 mr-3"
-                                title="Edit"
-                            >
-                                <svg
-                                    class="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                    />
-                                </svg>
-                            </button>
-                            <button
-                                @click="deleteComputer(computer.id)"
-                                class="text-red-600 hover:text-red-900"
-                                title="Delete"
-                            >
-                                <svg
-                                    class="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                    />
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <v-card>
+            <v-progress-linear
+                v-if="loading"
+                indeterminate
+                color="primary"
+            ></v-progress-linear>
 
-        <!-- Pagination -->
-        <div
-            v-if="filteredComputers.length > 0"
-            class="mt-4 flex items-center justify-between"
-        >
-            <div class="text-sm text-gray-500">
-                Showing
-                <span class="font-medium">{{ filteredComputers.length }}</span>
-                computers
-            </div>
-        </div>
+            <v-data-table
+                v-else
+                :headers="headers"
+                :items="filteredComputers"
+                :search="searchTerm"
+                :items-per-page="10"
+                class="elevation-1"
+            >
+                <template v-slot:item.actions="{ item }">
+                    <v-icon
+                        small
+                        class="mr-2"
+                        @click="editComputer(item)"
+                        title="Edit"
+                    >
+                        mdi-pencil
+                    </v-icon>
+                    <v-icon
+                        small
+                        @click="deleteComputer(item.id)"
+                        title="Delete"
+                    >
+                        mdi-delete
+                    </v-icon>
+                </template>
+
+                <template v-slot:item.ram="{ item }">
+                    {{ item.ram }} GB
+                </template>
+
+                <template v-slot:item.storage="{ item }">
+                    {{ item.storage }} GB
+                </template>
+
+                <template v-slot:no-data>
+                    <v-alert type="info" class="ma-4">
+                        No computers found
+                    </v-alert>
+                </template>
+            </v-data-table>
+        </v-card>
     </div>
 </template>
 
@@ -257,14 +105,22 @@ import { ref, computed, onMounted } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import axios from "axios";
 import ComputerForm from "./ComputerForm.vue";
-import Modal from "./Modal.vue";
-import Spinner from "./Spinner.vue";
 
 const computers = ref([]);
 const showAddForm = ref(false);
 const editingComputer = ref(null);
 const searchTerm = ref("");
 const loading = ref(true);
+
+const headers = [
+    { title: "Name", key: "name" },
+    { title: "Serial Number", key: "serial_number" },
+    { title: "Manufacturer", key: "manufacturer" },
+    { title: "Model", key: "model" },
+    { title: "RAM", key: "ram" },
+    { title: "Storage", key: "storage" },
+    { title: "Actions", key: "actions", sortable: false },
+];
 
 const filteredComputers = computed(() => {
     if (!searchTerm.value) return computers.value;
