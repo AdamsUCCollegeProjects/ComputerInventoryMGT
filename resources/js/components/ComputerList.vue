@@ -136,7 +136,7 @@ const filteredComputers = computed(() => {
 
 const fetchComputersDebounced = useDebounceFn(async () => {
     try {
-        const response = await axios.get("/api/computers");
+        const response = await axios.get("/computers");
         computers.value = response.data;
     } catch (error) {
         console.error("Error fetching computers:", error);
@@ -149,7 +149,7 @@ onMounted(fetchComputersDebounced);
 
 async function addComputer(computerData) {
     try {
-        const response = await axios.post("/api/computers", computerData);
+        const response = await axios.post("/computers", computerData);
         computers.value.push(response.data);
         showAddForm.value = false;
     } catch (error) {
@@ -164,7 +164,7 @@ function editComputer(computer) {
 async function updateComputer(updatedComputer) {
     try {
         const response = await axios.put(
-            `/api/computers/${updatedComputer.id}`,
+            `/computers/${updatedComputer.id}`,
             updatedComputer
         );
         const index = computers.value.findIndex(
@@ -182,7 +182,7 @@ async function updateComputer(updatedComputer) {
 async function deleteComputer(id) {
     if (confirm("Are you sure you want to delete this computer?")) {
         try {
-            await axios.delete(`/api/computers/${id}`);
+            await axios.delete(`/computers/${id}`);
             computers.value = computers.value.filter(
                 (computer) => computer.id !== id
             );

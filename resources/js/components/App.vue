@@ -1,17 +1,21 @@
 <template>
-    <v-app>
-      <v-app-bar app color="primary" dark>
-        <v-toolbar-title>Computer Inventory System</v-toolbar-title>
-      </v-app-bar>
-  
-      <v-main>
-        <v-container fluid>
-          <ComputerList />
-        </v-container>
-      </v-main>
-    </v-app>
-  </template>
-  
-  <script setup>
-  import ComputerList from './ComputerList.vue'
-  </script>
+  <v-app>
+    <Navbar v-if="authStore.isAuthenticated" />
+    
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
+</template>
+
+<script setup>
+import { onMounted } from 'vue';
+import Navbar from './Navbar.vue';
+import { useAuthStore } from '../store/auth';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.initializeAuth();
+});
+</script>
