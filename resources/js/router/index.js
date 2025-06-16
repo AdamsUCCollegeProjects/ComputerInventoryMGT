@@ -3,6 +3,7 @@ import Login from "../components/auth/Login.vue";
 import Dashboard from "../components/Dashboard.vue";
 import ComputerList from "../components/ComputerList.vue";
 import { useAuthStore } from "../store/auth";
+import Assignment from "../components/Assignment.vue";
 
 const routes = [
     {
@@ -21,6 +22,12 @@ const routes = [
         path: "/computers",
         name: "Computers",
         component: ComputerList,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: "/assignments",
+        name: "Assignments",
+        component: Assignment,
         meta: { requiresAuth: true },
     },
     {
