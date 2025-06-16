@@ -4,7 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ComputerController;
-
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,4 +31,5 @@ Route::prefix('auth')->group(function () {
 });
 
 
+Route::apiResource('users', UserController::class);
 Route::apiResource('computers', ComputerController::class);

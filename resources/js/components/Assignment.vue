@@ -1,327 +1,358 @@
 <template>
     <v-card>
-      <v-card-title class="d-flex align-center">
-        <span class="text-h5">Users Management</span>
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-          class="mr-4"
-        ></v-text-field>
-        <v-btn color="primary" @click="openCreateDialog">
-          <v-icon left>mdi-plus</v-icon>
-          Add User
-        </v-btn>
-      </v-card-title>
-  
-      <v-data-table
-        :headers="headers"
-        :items="users"
-        :search="search"
-        :loading="loading"
-        :items-per-page="10"
-        :page.sync="page"
-        :server-items-length="totalUsers"
-        :options.sync="options"
-        @update:options="fetchUsers"
-        class="elevation-1"
-      >
-        <template v-slot:item.avatar="{ item }">
-          <v-avatar size="36" class="my-2">
-            <img :src="item.avatar || '/images/default-avatar.png'" :alt="item.name">
-          </v-avatar>
-        </template>
-  
-        <template v-slot:item.status="{ item }">
-          <v-chip :color="item.active ? 'success' : 'error'" small>
-            {{ item.active ? 'Active' : 'Inactive' }}
-          </v-chip>
-        </template>
-  
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editUser(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="confirmDelete(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-  
-      <!-- Create/Edit Dialog -->
-      <v-dialog v-model="dialog" max-width="600px">
-        <v-card>
-          <v-card-title>
-            <span class="text-h5">{{ formTitle }}</span>
-          </v-card-title>
-  
-          <v-card-text>
-            <v-container>
-              <v-form ref="form" v-model="valid" lazy-validation>
-                <v-row>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="editedItem.name"
-                      label="Full Name"
-                      :rules="[v => !!v || 'Name is required']"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="editedItem.email"
-                      label="Email"
-                      :rules="emailRules"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="editedItem.phone"
-                      label="Phone"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-select
-                      v-model="editedItem.role"
-                      :items="roles"
-                      label="Role"
-                      :rules="[v => !!v || 'Role is required']"
-                      required
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-switch
-                      v-model="editedItem.active"
-                      label="Active"
-                    ></v-switch>
-                  </v-col>
-                </v-row>
-              </v-form>
-            </v-container>
-          </v-card-text>
-  
-          <v-card-actions>
+        <v-card-title class="d-flex align-center">
+            <span class="text-h5">Users Management</span>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="closeDialog">
-              Cancel
+            <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+                class="mr-4"
+            ></v-text-field>
+            <v-btn color="primary" @click="openCreateDialog">
+                <v-icon left>mdi-plus</v-icon>
+                Add User
             </v-btn>
-            <v-btn color="blue darken-1" text @click="save" :loading="saving">
-              Save
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-  
-      <!-- Delete Confirmation Dialog -->
-      <v-dialog v-model="deleteDialog" max-width="400px">
-        <v-card>
-          <v-card-title class="text-h5">Are you sure you want to delete this user?</v-card-title>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="deleteDialog = false">Cancel</v-btn>
-            <v-btn color="error" text @click="deleteUser" :loading="deleting">Delete</v-btn>
-            <v-spacer></v-spacer>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+        </v-card-title>
+        <v-data-table
+            :headers="headers"
+            :items="users"
+            :search="search"
+            :loading="loading"
+            :items-per-page="10"
+            :page.sync="page"
+            :server-items-length="totalUsers"
+            :options.sync="options"
+            @update:options="fetchUsers"
+            class="elevation-1"
+        >
+            <template v-slot:item.avatar="{ item }">
+                <v-avatar size="36" class="my-2">
+                    <img
+                        :src="item.avatar || '/images/default-avatar.png'"
+                        :alt="item.name"
+                    />
+                </v-avatar>
+            </template>
+
+            <template v-slot:item.status="{ item }">
+                <v-chip :color="item.active ? 'success' : 'error'" small>
+                    {{ item.active ? "Active" : "Inactive" }}
+                </v-chip>
+            </template>
+
+            <template v-slot:item.actions="{ item }">
+                <v-icon small class="mr-2" @click="editUser(item)">
+                    mdi-pencil
+                </v-icon>
+                <v-icon small @click="confirmDelete(item)"> mdi-delete </v-icon>
+            </template>
+
+            <template #item.role="{ item }">
+                {{ capitalize(item.role) }}
+            </template>
+        </v-data-table>
+
+        <!-- Create/Edit Dialog -->
+        <v-dialog v-model="dialog" max-width="600px">
+            <v-card>
+                <v-card-title>
+                    <span class="text-h5">{{ formTitle }}</span>
+                </v-card-title>
+
+                <v-card-text>
+                    <v-container>
+                        <v-form ref="form" v-model="valid" lazy-validation>
+                            <v-row>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="editedItem.name"
+                                        label="Full Name"
+                                        :rules="[
+                                            (v) => !!v || 'Name is required',
+                                        ]"
+                                        required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="editedItem.email"
+                                        label="Email"
+                                        :rules="emailRules"
+                                        required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="editedItem.phone"
+                                        label="Phone"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-select
+                                        v-model="editedItem.role"
+                                        :items="roles"
+                                        label="Role"
+                                        :rules="[
+                                            (v) => !!v || 'Role is required',
+                                        ]"
+                                        required
+                                    ></v-select>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-switch
+                                        v-model="editedItem.active"
+                                        label="Active"
+                                    ></v-switch>
+                                </v-col>
+                            </v-row>
+                        </v-form>
+                    </v-container>
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="closeDialog">
+                        Cancel
+                    </v-btn>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="save"
+                        :loading="saving"
+                    >
+                        Save
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Delete Confirmation Dialog -->
+        <v-dialog v-model="deleteDialog" max-width="400px">
+            <v-card>
+                <v-card-title class="text-h5"
+                    >Are you sure you want to delete this user?</v-card-title
+                >
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="deleteDialog = false"
+                        >Cancel</v-btn
+                    >
+                    <v-btn
+                        color="error"
+                        text
+                        @click="deleteUser"
+                        :loading="deleting"
+                        >Delete</v-btn
+                    >
+                    <v-spacer></v-spacer>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
-  </template>
-  
-  <script setup>
-  import { ref, computed, watch } from 'vue';
-  import axios from 'axios';
-  
-  // Table headers
-  const headers = ref([
-    { text: 'Avatar', value: 'avatar', sortable: false },
-    { text: 'Name', value: 'name' },
-    { text: 'Email', value: 'email' },
-    { text: 'Role', value: 'role' },
-    { text: 'Status', value: 'status' },
-    { text: 'Actions', value: 'actions', sortable: false },
-  ]);
-  
-  // Data
-  const users = ref([]);
-  const loading = ref(false);
-  const search = ref('');
-  const page = ref(1);
-  const totalUsers = ref(0);
-  const options = ref({
+</template>
+
+<script setup>
+import { ref, computed, watch } from "vue";
+import axios from "axios";
+
+// Table headers
+const headers = ref([
+    { title: "Avatar", key: "avatar", sortable: false },
+    { title: "Name", key: "name" },
+    { title: "Email", key: "email" },
+    { title: "Role", key: "role" },
+    { title: "Status", key: "status" },
+    { title: "Actions", key: "actions", sortable: false },
+]);
+
+// Data
+const users = ref([]);
+const loading = ref(false);
+const search = ref("");
+const page = ref(1);
+const totalUsers = ref(0);
+const options = ref({
     page: 1,
     itemsPerPage: 10,
-    sortBy: ['name'],
+    sortBy: ["name"],
     sortDesc: [false],
-  });
-  
-  // Form dialog
-  const dialog = ref(false);
-  const deleteDialog = ref(false);
-  const valid = ref(true);
-  const saving = ref(false);
-  const deleting = ref(false);
-  const editedIndex = ref(-1);
-  const editedItem = ref({
+});
+
+// Form dialog
+const dialog = ref(false);
+const deleteDialog = ref(false);
+const valid = ref(true);
+const saving = ref(false);
+const deleting = ref(false);
+const editedIndex = ref(-1);
+const editedItem = ref({
     id: null,
-    name: '',
-    email: '',
-    phone: '',
-    role: '',
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
     active: true,
     avatar: null,
-  });
-  const defaultItem = ref({
+});
+const defaultItem = ref({
     id: null,
-    name: '',
-    email: '',
-    phone: '',
-    role: '',
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
     active: true,
     avatar: null,
-  });
-  
-  // Roles options
-  const roles = ref(['Admin', 'Editor', 'Viewer', 'User']);
-  
-  // Validation rules
-  const emailRules = ref([
-    v => !!v || 'E-mail is required',
-    v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-  ]);
-  
-  // Computed properties
-  const formTitle = computed(() => {
-    return editedIndex.value === -1 ? 'New User' : 'Edit User';
-  });
-  
-  // Methods
-  const fetchUsers = async () => {
+});
+
+// Roles options
+const roles = ref(["Admin", "Editor", "Viewer", "User"]);
+
+// Validation rules
+const emailRules = ref([
+    (v) => !!v || "E-mail is required",
+    (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+]);
+
+const capitalize = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+// Computed properties
+const formTitle = computed(() => {
+    return editedIndex.value === -1 ? "New User" : "Edit User";
+});
+
+// Methods
+const fetchUsers = async () => {
     try {
-      loading.value = true;
-      
-      const { page, itemsPerPage, sortBy, sortDesc } = options.value;
-      const sortField = sortBy[0] || 'name';
-      const sortOrder = sortDesc[0] ? 'desc' : 'asc';
-      
-      const response = await axios.get('/api/users', {
-        params: {
-          page,
-          per_page: itemsPerPage,
-          search: search.value,
-          sort_by: sortField,
-          sort_order: sortOrder,
-        }
-      });
-      
-      users.value = response.data.data;
-      totalUsers.value = response.data.total;
+        loading.value = true;
+
+        const { page, itemsPerPage, sortBy, sortDesc } = options.value;
+        const sortField = sortBy[0] || "name";
+        const sortOrder = sortDesc[0] ? "desc" : "asc";
+
+        const response = await axios.get("/users", {
+            params: {
+                page,
+                per_page: itemsPerPage,
+                search: search.value,
+                sort_by: sortField,
+                sort_order: sortOrder,
+            },
+        });
+
+        users.value = response.data;
+        totalUsers.value = response.data.total;
     } catch (error) {
-      console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
     } finally {
-      loading.value = false;
+        loading.value = false;
     }
-  };
-  
-  const openCreateDialog = () => {
+};
+
+const openCreateDialog = () => {
     editedIndex.value = -1;
     editedItem.value = { ...defaultItem.value };
     dialog.value = true;
-  };
-  
-  const editUser = (item) => {
+};
+
+const editUser = (item) => {
     editedIndex.value = users.value.indexOf(item);
     editedItem.value = { ...item };
     dialog.value = true;
-  };
-  
-  const confirmDelete = (item) => {
+};
+
+const confirmDelete = (item) => {
     editedIndex.value = users.value.indexOf(item);
     editedItem.value = { ...item };
     deleteDialog.value = true;
-  };
-  
-  const closeDialog = () => {
+};
+
+const closeDialog = () => {
     dialog.value = false;
     setTimeout(() => {
-      editedItem.value = { ...defaultItem.value };
-      editedIndex.value = -1;
+        editedItem.value = { ...defaultItem.value };
+        editedIndex.value = -1;
     }, 300);
-  };
-  
-  const save = async () => {
+};
+
+const save = async () => {
     if (!valid.value) return;
-    
+
     saving.value = true;
     try {
-      if (editedIndex.value > -1) {
-        // Update existing user
-        await axios.put(`/api/users/${editedItem.value.id}`, editedItem.value);
-      } else {
-        // Create new user
-        await axios.post('/api/users', editedItem.value);
-      }
-      fetchUsers();
-      closeDialog();
+        if (editedIndex.value > -1) {
+            // Update existing user
+            await axios.put(`/users/${editedItem.value.id}`, editedItem.value);
+        } else {
+            // Create new user
+            await axios.post("/users", editedItem.value);
+        }
+        fetchUsers();
+        closeDialog();
     } catch (error) {
-      console.error('Error saving user:', error);
+        console.error("Error saving user:", error);
     } finally {
-      saving.value = false;
+        saving.value = false;
     }
-  };
-  
-  const deleteUser = async () => {
+};
+
+const deleteUser = async () => {
     deleting.value = true;
     try {
-      await axios.delete(`/api/users/${editedItem.value.id}`);
-      fetchUsers();
-      deleteDialog.value = false;
+        await axios.delete(`/users/${editedItem.value.id}`);
+        fetchUsers();
+        deleteDialog.value = false;
     } catch (error) {
-      console.error('Error deleting user:', error);
+        console.error("Error deleting user:", error);
     } finally {
-      deleting.value = false;
+        deleting.value = false;
     }
-  };
-  
-  // Watchers
-  watch(search, (newVal, oldVal) => {
+};
+
+// Watchers
+watch(search, (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      options.value.page = 1;
-      fetchUsers();
+        options.value.page = 1;
+        fetchUsers();
     }
-  });
-  
-  // Initial fetch
-  fetchUsers();
-  </script>
-  
-  <style lang="scss" scoped>
-  .v-data-table {
+});
+
+// Initial fetch
+fetchUsers();
+</script>
+
+<style lang="scss" scoped>
+.v-data-table {
     margin-top: 20px;
-  }
-  
-  .v-avatar {
+}
+
+.v-avatar {
     cursor: pointer;
     transition: transform 0.2s;
-  
+
     &:hover {
-      transform: scale(1.1);
+        transform: scale(1.1);
     }
-  }
-  
-  .v-icon {
+}
+
+.v-icon {
     cursor: pointer;
     transition: color 0.2s;
-  
+
     &:hover {
-      color: var(--v-primary-base);
+        color: var(--v-primary-base);
     }
-  
+
     &.mdi-delete:hover {
-      color: var(--v-error-base);
+        color: var(--v-error-base);
     }
-  }
-  </style>
+}
+</style>
