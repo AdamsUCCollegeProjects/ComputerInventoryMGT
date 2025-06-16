@@ -6,7 +6,7 @@
 
         <v-btn to="/dashboard" text>Dashboard</v-btn>
         <v-btn to="/computers" text>Computers</v-btn>
-        <v-btn to="/assignments" text>Assignments</v-btn>
+        <v-btn to="/users" text>Users</v-btn>
 
         <v-btn icon @click="dialog = true">
             <v-icon>mdi-logout</v-icon>

@@ -92,6 +92,16 @@
                 ></v-text-field>
             </v-col>
 
+            <v-col cols="12" md="6">
+                <v-select
+                    v-model="formData.user_id"
+                    :items="users"
+                    item-title="name"
+                    item-value="id"
+                    label="User"
+                ></v-select>
+            </v-col>
+
             <v-col cols="12">
                 <v-textarea
                     v-model="formData.notes"
@@ -120,7 +130,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
+import axios from "axios";
 
 const osOptions = [
     "Windows 10",
@@ -153,6 +164,20 @@ const formData = ref({
     notes: "",
 });
 
+const users = ref([]);
+const fetchUsers = async () => {
+    try {
+        const response = await axios.get("/users");
+        users.value = response.data;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+    }
+};
+
+onMounted(() => {
+    fetchUsers();
+});
+
 watch(
     () => props.computer,
     (newComputer) => {
@@ -163,6 +188,7 @@ watch(
                 const date = new Date(formData.value.purchase_date);
                 formData.value.purchase_date = date.toISOString().split("T")[0];
             }
+            // formData.value.user_id = newComputer.user_id;
         }
     },
     { immediate: true }

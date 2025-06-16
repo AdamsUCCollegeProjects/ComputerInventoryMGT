@@ -25,8 +25,8 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
-        path: "/assignments",
-        name: "Assignments",
+        path: "/users",
+        name: "Users",
         component: Assignment,
         meta: { requiresAuth: true },
     },

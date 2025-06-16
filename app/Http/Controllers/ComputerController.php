@@ -14,7 +14,8 @@ class ComputerController extends Controller
      */
     public function index()
     {
-        return Computer::all();
+        $withUser = Computer::with('user')->get();
+        return $withUser;
     }
 
     /**
@@ -36,6 +37,7 @@ class ComputerController extends Controller
             'purchase_date' => 'required|date',
             'cost' => 'required|numeric',
             'notes' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
         ]);
 
         return Computer::create($validated);
@@ -72,6 +74,7 @@ class ComputerController extends Controller
             'purchase_date' => 'sometimes|date',
             'cost' => 'sometimes|numeric',
             'notes' => 'nullable|string',
+            'user_id' => 'sometimes|exists:users,id',
         ]);
 
         $computer->update($validated);

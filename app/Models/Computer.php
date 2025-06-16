@@ -20,10 +20,16 @@ class Computer extends Model
         'operating_system',
         'purchase_date',
         'cost',
-        'notes'
+        'notes',
+        'user_id',
     ];
 
     protected $casts = [
         'purchase_date' => 'date',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

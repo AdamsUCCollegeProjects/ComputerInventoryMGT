@@ -7,12 +7,14 @@
                     label="Search computers..."
                     prepend-inner-icon="mdi-magnify"
                     variant="outlined"
+                    class="mt-4 ml-4"
                     hide-details
                 ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" md="8" class="text-sm-right">
                 <v-btn
                     color="primary"
+                    class="mt-4 mr-4"
                     @click="showAddForm = true"
                     prepend-icon="mdi-plus"
                 >
@@ -119,6 +121,7 @@ const headers = [
     { title: "Model", key: "model" },
     { title: "RAM", key: "ram" },
     { title: "Storage", key: "storage" },
+    { title: "Assigned To", key: "user.name" },
     { title: "Actions", key: "actions", sortable: false },
 ];
 
