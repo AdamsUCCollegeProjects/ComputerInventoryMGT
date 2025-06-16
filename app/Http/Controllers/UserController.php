@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Log;
 class UserController extends Controller
 {
     /**
@@ -40,6 +40,7 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::find($id);
+        Log::info($request->all());
         $user->update($request->all());
         return response()->json($user);
     }

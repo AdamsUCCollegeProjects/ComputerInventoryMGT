@@ -31,7 +31,10 @@
             <template v-slot:item.avatar="{ item }">
                 <v-avatar size="36" class="my-2">
                     <img
-                        :src="item.avatar || '/images/default-avatar.png'"
+                        :src="
+                            item.avatar ||
+                            'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
+                        "
                         :alt="item.name"
                     />
                 </v-avatar>
@@ -94,12 +97,27 @@
                                     <v-select
                                         v-model="editedItem.role"
                                         :items="roles"
+                                        item-title="text"
+                                        item-value="value"
                                         label="Role"
                                         :rules="[
                                             (v) => !!v || 'Role is required',
                                         ]"
                                         required
                                     ></v-select>
+                                </v-col>
+                                <!-- Password and confirm password -->
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="editedItem.password"
+                                        label="Password"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="editedItem.confirmPassword"
+                                        label="Confirm Password"
+                                    ></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-switch
@@ -160,6 +178,10 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import axios from "axios";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const $toast = useToast();
 
 // Table headers
 const headers = ref([
@@ -199,6 +221,8 @@ const editedItem = ref({
     role: "",
     active: true,
     avatar: null,
+    password: "",
+    confirmPassword: "",
 });
 const defaultItem = ref({
     id: null,
@@ -208,10 +232,16 @@ const defaultItem = ref({
     role: "",
     active: true,
     avatar: null,
+    password: "",
+    confirmPassword: "",
 });
 
 // Roles options
-const roles = ref(["Admin", "Editor", "Viewer", "User"]);
+const roles = ref([
+    { text: "Admin", value: "admin" },
+    { text: "User", value: "user" },
+    { text: "Super Admin", value: "super-admin" },
+]);
 
 // Validation rules
 const emailRules = ref([
@@ -287,6 +317,17 @@ const save = async () => {
     if (!valid.value) return;
 
     saving.value = true;
+    if (editedItem.value.role) {
+        editedItem.value.role = editedItem.value.role.toLowerCase();
+    }
+
+    if (editedItem.value.password !== editedItem.value.confirmPassword) {
+        // toast error
+        $toast.error("Password and confirm password do not match");
+        saving.value = false;
+        return;
+    }
+
     try {
         if (editedIndex.value > -1) {
             // Update existing user

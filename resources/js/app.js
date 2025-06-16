@@ -6,6 +6,7 @@ import * as directives from "vuetify/directives";
 import router from './router/index';
 import { createPinia } from 'pinia';
 import axios from "axios"
+// import ToastPlugin from 'vue-toast-notification';
 
 import "vuetify/styles";
 import "@mdi/font/css/materialdesignicons.css";
@@ -22,7 +23,7 @@ const app = createApp(App);
 app.use(vuetify);
 app.use(router);
 app.use(pinia);
-
+// app.use(ToastPlugin);
 // Set up axios defaults
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
